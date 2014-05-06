@@ -1,0 +1,13 @@
+{
+    "name": "diy-lisp-coffee",
+    "description": "TODO",
+    "author": "Jeroen Pelgrims <jeroen.pelgrims@gmail.com>",
+    "private": true,
+    "dependencies": {
+        "chai": "*",
+        "mocha": "*",
+        "coffee-script" : "*",
+        "gulp": "*",
+        "gulp-mocha": "*"
+    }
+}
