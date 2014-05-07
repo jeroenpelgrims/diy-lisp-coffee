@@ -2,26 +2,26 @@ expect = (require 'chai').expect
 parse = (require '../diylisp/parser').parse
 LispError = (require '../diylisp/types').LispError
 
-describe 'parser', () ->
+describe 'parser', ->
 
-    it 'single symbol', () ->
+    it 'single symbol', ->
         expect(parse 'foo').to.equal 'foo'
 
-    it 'boolean', () ->
+    it 'boolean', ->
         expect(parse '#t').to.equal true
         expect(parse '#f').to.equal false
 
-    it 'integer', () ->
+    it 'integer', ->
         expect(parse '42').to.equal 42
         expect(parse '1337').to.equal 1337
 
-    it 'list of symbols', () ->
+    it 'list of symbols', ->
         input = '(foo bar baz)'
         expect(parse input).to.equal ['foo', 'bar', 'baz']
 
         expect(parse '()').to.equal []
 
-    it 'list of mixed types', () ->
+    it 'list of mixed types', ->
         program = '(foo (bar ((#t)) x) (baz y))'
         ast = [
             'foo',
@@ -29,8 +29,52 @@ describe 'parser', () ->
             ['baz', 'y']]
         expect(parse program).to.equal ast
 
-     it 'missing parenthesis', () ->
-        expect(() -> parse '(foo (bar x y)')
-            .to.throw (new LispError 'Incomplete expression')
+     it 'missing parenthesis', ->
+        expect(-> parse '(foo (bar x y)')
+            .to.throw LispError, 'Incomplete expression'
 
-    #TODO: complete tests: https://github.com/kvalle/diy-lisp/blob/master/tests/test_1_parsing.py
+    it 'extra parenthesis', ->
+        expect(-> parse '(foo (bar x y)))')
+            .to.throw LispError, 'Expected EOF'
+
+    it 'remove extra whitespace', ->
+        program = """
+
+            (program with much whitespace)
+        """
+
+        expect(-> parse program)
+            .to.equal ['program', 'with', 'much', 'whitespace']
+
+    it 'strip comments', ->
+        program = """
+            (define fact
+            ;; Factorial function
+            (lambda (n)
+                (if (<= n 1)
+                    1 ; Factorial of 0 is 1, and we deny
+                      ; the existence of negative numbers
+                    (* n (fact (- n 1))))))
+        """
+        ast = ['define', 'fact',
+                ['lambda', ['n'],
+                    ['if', ['<=', 'n', 1],
+                        1,
+                        ['*', 'n', ['fact', ['-', 'n', 1]]]]]]
+
+        expect(-> parse program)
+            .to.equal ast
+
+    it 'expand single quoted symbol', ->
+        expect(-> parse '(foo \'nil)')
+            .to.equal ["foo", ["quote", "nil"]]
+
+    it 'nested quotes', ->
+        expect(-> parse "''''foo")
+            .to.equal ["quote", ["quote", ["quote", ["quote", "foo"]]]]
+
+    it 'expand crazy quote combo', ->
+        source = "'(this ''''(makes ''no) 'sense)"
+
+        expect(-> unparse parse(source))
+            .to.equal source
