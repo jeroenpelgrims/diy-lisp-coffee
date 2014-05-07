@@ -1,23 +1,24 @@
-should = (require 'chai').should()
-parser = require '../diylisp/parser'
+expect = (require 'chai').expect
+parse = (require '../diylisp/parser').parse
 
 describe 'parser', () ->
 
     it 'single symbol', () ->
-        (parser.parse 'foo').should.equal 'foo'
+        expect(parse 'foo').to.equal 'foo'
 
     it 'boolean', () ->
-        (parser.parse '#t').should.equal true
-        (parser.parse '#f').should.equal false
+        expect(parse '#t').to.equal true
+        expect(parse '#f').to.equal false
 
     it 'integer', () ->
-        (parser.parse '42').should.equal 42
-        (parser.parse '1337').should.equal 1337
+        expect(parse '42').to.equal 42
+        expect(parse '1337').to.equal 1337
 
     it 'list of symbols', () ->
         input = '(foo bar baz)'
-        (parser.parse input).should.equal ['foo', 'bar', 'baz']
-        (parser.parse '()').should.equal []
+        expect(parse input).to.equal ['foo', 'bar', 'baz']
+
+        expect(parse '()').to.equal []
 
     it 'list of mixed types', () ->
         program = '(foo (bar ((#t)) x) (baz y))'
@@ -25,6 +26,6 @@ describe 'parser', () ->
             'foo',
             ['bar', [[true]], 'x'],
             ['baz', 'y']]
-        (parser.parse program).should.equal ast
+        expect(parse program).to.equal ast
 
     #TODO: complete tests: https://github.com/kvalle/diy-lisp/blob/master/tests/test_1_parsing.py
