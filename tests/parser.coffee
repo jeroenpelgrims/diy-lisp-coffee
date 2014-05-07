@@ -1,5 +1,6 @@
 expect = (require 'chai').expect
 parse = (require '../diylisp/parser').parse
+LispError = (require '../diylisp/types').LispError
 
 describe 'parser', () ->
 
@@ -27,5 +28,9 @@ describe 'parser', () ->
             ['bar', [[true]], 'x'],
             ['baz', 'y']]
         expect(parse program).to.equal ast
+
+     it 'missing parenthesis', () ->
+        expect(() -> parse '(foo (bar x y)')
+            .to.throw (new LispError 'Incomplete expression')
 
     #TODO: complete tests: https://github.com/kvalle/diy-lisp/blob/master/tests/test_1_parsing.py
