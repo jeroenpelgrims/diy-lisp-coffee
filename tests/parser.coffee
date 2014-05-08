@@ -1,5 +1,6 @@
 expect = (require 'chai').expect
 parse = (require '../diylisp/parser').parse
+unparse = (require '../diylisp/parser').unparse
 LispError = (require '../diylisp/types').LispError
 
 describe 'parser', ->
@@ -43,7 +44,7 @@ describe 'parser', ->
             (program with much whitespace)
         """
 
-        expect(-> parse program)
+        expect(parse program)
             .to.equal ['program', 'with', 'much', 'whitespace']
 
     it 'strip comments', ->
@@ -62,19 +63,23 @@ describe 'parser', ->
                         1,
                         ['*', 'n', ['fact', ['-', 'n', 1]]]]]]
 
-        expect(-> parse program)
+        expect(parse program)
             .to.equal ast
 
     it 'expand single quoted symbol', ->
-        expect(-> parse '(foo \'nil)')
+        expect(parse '(foo \'nil)')
             .to.equal ["foo", ["quote", "nil"]]
 
     it 'nested quotes', ->
-        expect(-> parse "''''foo")
+        expect(parse "''''foo")
             .to.equal ["quote", ["quote", ["quote", ["quote", "foo"]]]]
 
     it 'expand crazy quote combo', ->
         source = "'(this ''''(makes ''no) 'sense)"
 
-        expect(-> unparse parse(source))
+        expect(unparse parse(source))
             .to.equal source
+
+    it 'a', ->
+        expect (unparse true)
+            .to.equal '#t'
