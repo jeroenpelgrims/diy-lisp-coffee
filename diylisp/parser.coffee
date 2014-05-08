@@ -1,4 +1,6 @@
 LispError = (require './types').LispError
+isBoolean = (require './ast').isBoolean
+isList = (require './ast').isList
 
 parse = (source) ->
     throw Error 'DIY'
@@ -52,6 +54,15 @@ parseMultiple = (source) ->
     [parse(exp) for exp in splitExpressions(source)]
 
 unparse = (ast) ->
-    #TODO
+    if isBoolean ast
+        return if ast then '#t' else '#f'
+    else if isList ast
+        if ast.length > 0 and ast[0] == quote
+            return "'#{unparse ast[1]}"
+        else
+            s = [unparse x for x in ast].join ' '
+            return "(#{s})"
+    else
+        return ast + ''
 
 module.exports.parse = parse
