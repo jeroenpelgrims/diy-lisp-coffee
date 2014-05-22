@@ -79,7 +79,3 @@ describe 'parser', ->
 
         expect(unparse parse(source))
             .to.equal source
-
-    it 'a', ->
-        expect (unparse true)
-            .to.equal '#t'

@@ -2,8 +2,28 @@ LispError = (require './types').LispError
 isBoolean = (require './ast').isBoolean
 isList = (require './ast').isList
 
+'''
+* boolean
+string (single symbol)
+sub expression
+integer
+list (list of symbols)
+'quote
+'''
 parse = (source) ->
-    throw Error 'DIY'
+    source = removeComments source
+    
+    if /^#[tf]$/.test source
+        source is '#t'
+    else if /^\d+$/.test source
+        parseInt source
+    else if /^\w+$/.test source
+        source
+    else if /^'\w+$/.test source
+        rest = source[1..]
+        ['quote', parse rest]
+    else if /^\(.*/.test source
+        undefined
 
 removeComments = (source) ->
     source.replace /;.*\n/, '\n'
@@ -20,7 +40,7 @@ findMatchingParenthesis = (source, start=0) ->
         if source[pos] == '('
             openBrackets += 1
         if source[pos] == ')'
-            open_brackets -= 1
+            openBrackets -= 1
     pos
 
 splitExpressions = (source) ->
@@ -44,8 +64,11 @@ firstExpression = (source) ->
             rest = source[last + 1..]
             return [exp, rest]
         else
-            match = re.match(/^[^\s)']+/, source)
-            end = match.end()
+            re = /^[^\s)']+/
+            match = source.match re
+            end = (source.search re) + match[0].length
+            #match = source.match /^[^\s)']+/
+            #end = match.end()
             atom = source[..end]
             return [atom, source[end..]]
 
@@ -65,4 +88,6 @@ unparse = (ast) ->
     else
         return ast + ''
 
-module.exports.parse = parse
+module.exports =
+    parse: parse
+    unparse: unparse
