@@ -2,17 +2,9 @@ LispError = (require './types').LispError
 isBoolean = (require './ast').isBoolean
 isList = (require './ast').isList
 
-'''
-* boolean
-string (single symbol)
-sub expression
-integer
-list (list of symbols)
-'quote
-'''
 parse = (source) ->
-    source = removeComments source
-    
+    source = source.replace /^\s+|\s+$/g, ''
+
     if /^#[tf]$/.test source
         source is '#t'
     else if /^\d+$/.test source
@@ -23,7 +15,13 @@ parse = (source) ->
         rest = source[1..]
         ['quote', parse rest]
     else if /^\(.*/.test source
-        undefined
+        oldSource = source
+        source = source[1...findMatchingParenthesis source]
+        if oldSource.length - source.length > 2
+            throw new LispError 'Expected EOF'
+        parseMultiple source
+    else
+        source
 
 removeComments = (source) ->
     source.replace /;.*\n/, '\n'
@@ -67,14 +65,12 @@ firstExpression = (source) ->
             re = /^[^\s)']+/
             match = source.match re
             end = (source.search re) + match[0].length
-            #match = source.match /^[^\s)']+/
-            #end = match.end()
             atom = source[..end]
             return [atom, source[end..]]
 
 parseMultiple = (source) ->
     source = removeComments source
-    [parse(exp) for exp in splitExpressions(source)]
+    (parse exp for exp in splitExpressions(source))
 
 unparse = (ast) ->
     if isBoolean ast
