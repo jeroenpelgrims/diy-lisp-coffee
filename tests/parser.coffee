@@ -67,7 +67,7 @@ describe 'parser', ->
             .to.deep.equal ast
 
     it 'expand single quoted symbol', ->
-        expect(parse '(foo \'nil)')
+        expect(parse "(foo 'nil)")
             .to.deep.equal ["foo", ["quote", "nil"]]
 
     it 'nested quotes', ->

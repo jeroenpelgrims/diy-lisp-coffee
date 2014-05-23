@@ -11,7 +11,7 @@ parse = (source) ->
         parseInt source
     else if /^\w+$/.test source
         source
-    else if /^'\w+$/.test source
+    else if /^'[\w']+$/.test source
         rest = source[1..]
         ['quote', parse rest]
     else if /^\(.*/.test source
@@ -62,7 +62,7 @@ firstExpression = (source) ->
             rest = source[last + 1..]
             return [exp, rest]
         else
-            re = /^[^\s)']+/
+            re = /^[^\s)]+/
             match = source.match re
             end = (source.search re) + match[0].length
             atom = source[..end]
@@ -70,7 +70,7 @@ firstExpression = (source) ->
 
 parseMultiple = (source) ->
     source = removeComments source
-    (parse exp for exp in splitExpressions(source))
+    (parse exp for exp in splitExpressions source)
 
 unparse = (ast) ->
     if isBoolean ast
