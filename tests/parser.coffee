@@ -6,15 +6,15 @@ LispError = (require '../diylisp/types').LispError
 describe 'parser', ->
 
     it 'single symbol', ->
-        expect(parse 'foo').to.deep.equal 'foo'
+        expect(parse 'foo').to.equal 'foo'
 
     it 'boolean', ->
-        expect(parse '#t').to.deep.equal true
-        expect(parse '#f').to.deep.equal false
+        expect(parse '#t').to.equal true
+        expect(parse '#f').to.equal false
 
     it 'integer', ->
-        expect(parse '42').to.deep.equal 42
-        expect(parse '1337').to.deep.equal 1337
+        expect(parse '42').to.equal 42
+        expect(parse '1337').to.equal 1337
 
     it 'list of symbols', ->
         input = '(foo bar baz)'
@@ -78,4 +78,4 @@ describe 'parser', ->
         source = "'(this ''''(makes ''no) 'sense)"
 
         expect(unparse parse(source))
-            .to.deep.equal source
+            .to.equal source
